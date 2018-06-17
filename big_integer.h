@@ -56,14 +56,13 @@ public:
 private:
     const ull base = 4294967296;
     const ui max_ui = 4294967295;
-    size_t size;
+    const ui min_ui = -4294967296;
     vector <ui> digits;
 
     ui operator[] (size_t ind) const;
     ui& operator[] (size_t ind);
 
     void add_digit();
-    void delete_digit();
     void delete_space();
 
     bool is_zero() const;

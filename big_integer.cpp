@@ -15,20 +15,16 @@ const ull base = 4294967296;
 const ui max_ui = 4294967295;
 
 big_integer::big_integer() {
-    size = 1;
     signum = 0;
     digits.clear();
     digits.push_back(0);
 }
 
 big_integer::~big_integer() {
-    for (size_t i = 0; i < digits.size(); i++) {
-        digits.clear();
-    }
+    digits.clear();
 }
 
 big_integer::big_integer(int arg) {
-    size = 1;
     digits.clear();
     digits.push_back(abs(arg));
     if (arg >= 0) {
@@ -40,14 +36,12 @@ big_integer::big_integer(int arg) {
 }
 
 big_integer::big_integer(unsigned int arg) {
-    size = 1;
     signum = 0;
     digits.clear();
     digits.push_back(arg);
 }
 
 big_integer::big_integer(ull arg) {
-    size = 2;
     signum = 0;
     digits.clear();
     digits.push_back(ui(arg % base));
@@ -56,14 +50,12 @@ big_integer::big_integer(ull arg) {
 }
 
 big_integer::big_integer(const big_integer& arg) {
-    size = arg.size;
     signum = arg.signum;
     digits.clear();
     digits = arg.digits;
 }
 
 big_integer::big_integer(const string& arg) {
-    size = 1;
     size_t i = 0;
     signum = 0;
     if (arg[0] == '-') {
@@ -79,7 +71,6 @@ big_integer::big_integer(const string& arg) {
 }
 
 void big_integer::clear() {
-    size = 1;
     signum = 0;
     digits.clear();
     digits.push_back(0);
@@ -101,7 +92,7 @@ string big_integer::get_binary_string() const {
         soft = 0;
     }
     bool zero_flag = true;
-    for (size_t i = size - 1; ; i--) {
+    for (size_t i = digits.size() - 1; ; i--) {
         for (size_t j = 0; j < 32; j++) {
             ui num = (buf.digits[i] << j) >> 31;
             if (zero_flag && num == soft) {
@@ -137,7 +128,6 @@ string big_integer::get_decimal_string() const {
 }
 
 big_integer& big_integer::operator= (const big_integer& arg) {
-    size = arg.size;
     signum = arg.signum;
     digits.clear();
     digits = arg.digits;
@@ -332,7 +322,7 @@ big_integer operator<< (big_integer a, int b) {
 
 big_integer& big_integer::operator>>= (int arg) {
     make_bincode();
-    for (int i = 0; i < digits.size(); i++) {
+    for (size_t i = 0; i < digits.size(); i++) {
         for (ui j = 0; j < 32; j++) {
             ui ind = j;
             ui block = i;
@@ -463,23 +453,16 @@ ui& big_integer::operator[] (size_t ind) {
 
 void big_integer::add_digit() {
     digits.push_back(0);
-    size++;
-}
-
-void big_integer::delete_digit() {
-    digits.pop_back();
-    size--;
 }
 
 void big_integer::delete_space() {
-    while (size > 1 && digits[size - 1] == 0) {
+    while (digits.size() > 1 && digits[digits.size() - 1] == 0) {
         digits.pop_back();
-        size--;
     }
 }
 
 bool big_integer::is_zero() const {
-    return size == 1 && digits[0] == 0;
+    return digits.size() == 1 && digits[0] == 0;
 }
 
 void big_integer::make_bincode() {
@@ -506,7 +489,7 @@ ui big_integer::small_unsigned_mod(const big_integer& a, ui b) {
     ull res = 0;
     ull power = 1;
     ull mod = b;
-    for (size_t i = 0; i < a.size; i++) {
+    for (size_t i = 0; i < a.digits.size(); i++) {
         res = (res + (ull(a[i]) % mod) * power) % mod;
         power = (power << 32) % mod;
     }
@@ -514,14 +497,14 @@ ui big_integer::small_unsigned_mod(const big_integer& a, ui b) {
 }
 
 void big_integer::small_unsigned_sum(big_integer& a, ui b, size_t pos) {
-    if (pos == a.size) {
+    if (pos == a.digits.size()) {
         a.add_digit();
     }
     ull cur = ull(a[pos]) + ull(b);
-    for (size_t i = pos; i < a.size; i++) {
+    for (size_t i = pos; i < a.digits.size(); i++) {
         if (cur >= base) {
             a[i] = cur << 32 >> 32;
-            if (i + 1 == a.size) {
+            if (i + 1 == a.digits.size()) {
                 a.add_digit();
                 cur = cur >> 32;
             }
@@ -539,7 +522,7 @@ void big_integer::small_unsigned_sum(big_integer& a, ui b, size_t pos) {
 void big_integer::small_unsigned_multiply(big_integer& a, ui b) {
     big_integer res(0);
     res.signum = a.signum;
-    for (size_t i = 0; i < a.size; i++) {
+    for (size_t i = 0; i < a.digits.size(); i++) {
         ull cur = a[i] * ull(b);
         if (cur >= base) {
             small_unsigned_sum(res, cur << 32 >> 32, i);
@@ -554,17 +537,17 @@ void big_integer::small_unsigned_multiply(big_integer& a, ui b) {
 }
 
 void big_integer::small_unsigned_div(big_integer& a, ui b) {
-    if (a.size == 1) {
+    if (a.digits.size() == 1) {
         a[0] = a[0] / b;
         return;
     }
     big_integer res(0);
     res.signum = a.signum;
-    for (size_t i = 1; i < a.size; i++) {
+    for (size_t i = 1; i < a.digits.size(); i++) {
         res.add_digit();
     }
-    ull cur = a[a.size - 1];
-    for (size_t i = a.size - 2; ; i--) {
+    ull cur = a[a.digits.size() - 1];
+    for (size_t i = a.digits.size() - 2; ; i--) {
         cur = (cur << 32) + a[i];
         ull buf = cur / b;
         small_unsigned_sum(res, ui(buf >> 32), i + 1);
@@ -579,7 +562,7 @@ void big_integer::small_unsigned_div(big_integer& a, ui b) {
 }
 
 void big_integer::small_unsigned_sub(big_integer& a, ui b, size_t pos) {
-    for (size_t i = pos; i < a.size; i++) {
+    for (size_t i = pos; i < a.digits.size(); i++) {
         if (a[i] >= b) {
             a[i] -= b;
             break;
@@ -593,19 +576,19 @@ void big_integer::small_unsigned_sub(big_integer& a, ui b, size_t pos) {
 }
 
 void big_integer::big_unsigned_add(const big_integer& a) {
-    for (size_t i = 0; i < a.size; i++) {
+    for (size_t i = 0; i < a.digits.size(); i++) {
         small_unsigned_sum(*this, a[i], i);
     }
 }
 
 void big_integer::big_unsigned_sub(const big_integer& a) {
-    for (size_t i = 0; i < a.size; i++) {
+    for (size_t i = 0; i < a.digits.size(); i++) {
         small_unsigned_sub(*this, a[i], i);
     }
 }
 
 void big_integer::big_unsigned_sub(const big_integer& a, size_t from) {
-    for (size_t i = 0; i < a.size; i++) {
+    for (size_t i = 0; i < a.digits.size(); i++) {
         small_unsigned_sub(*this, a[i], i + from);
     }
 }
@@ -613,8 +596,8 @@ void big_integer::big_unsigned_sub(const big_integer& a, size_t from) {
 void big_integer::big_unsigned_mul(const big_integer& a) {
     big_integer res;
     res.signum = signum;
-    for (size_t i = 0; i < size; i++) {
-        for (size_t j = 0; j < a.size; j++) {
+    for (size_t i = 0; i < digits.size(); i++) {
+        for (size_t j = 0; j < a.digits.size(); j++) {
             ull x = ull(digits[i]) * ull(a[j]);
             small_unsigned_sum(res, (x << 32 >> 32), i + j);
             small_unsigned_sum(res, (x >> 32), i + j + 1);
@@ -624,7 +607,7 @@ void big_integer::big_unsigned_mul(const big_integer& a) {
     *this = res;
 }
 std::pair<big_integer, big_integer> big_integer::big_unsigned_div(const big_integer& a, const big_integer& arg) {
-    if (arg.size <= 1) {
+    if (arg.digits.size() <= 1) {
         big_integer x = a;
         ui m = small_unsigned_mod(x, arg[0]);
         small_unsigned_div(x, arg[0]);
@@ -637,7 +620,7 @@ std::pair<big_integer, big_integer> big_integer::big_unsigned_div(const big_inte
     if (cmp_res == 2) {
         return std::make_pair(big_integer(0), a);
     }
-    size_t n = arg.size;
+    size_t n = arg.digits.size();
     big_integer A = a;
     big_integer B = arg;
     big_integer res = 0;
@@ -646,7 +629,7 @@ std::pair<big_integer, big_integer> big_integer::big_unsigned_div(const big_inte
         small_unsigned_multiply(A, scale);
         small_unsigned_multiply(B, scale);
     }
-    ui m = A.size - B.size;
+    ui m = A.digits.size() - B.digits.size();
     for (size_t i = 0; i < m; i++) {
         res.add_digit();
     }
@@ -693,13 +676,13 @@ std::pair<big_integer, big_integer> big_integer::big_unsigned_div(const big_inte
     return std::make_pair(res, A);
 }
 ui big_integer::big_unsigned_cmp(const big_integer& a) const {
-    if (size != a.size) {
-        if (size > a.size) {
+    if (digits.size() != a.digits.size()) {
+        if (digits.size() > a.digits.size()) {
             return 1;
         }
         return 2;
     }
-    for (size_t i = size - 1; ; i--) {
+    for (size_t i = digits.size() - 1; ; i--) {
         if (digits[i] != a[i]) {
             if (digits[i] > a[i]) {
                 return 1;
