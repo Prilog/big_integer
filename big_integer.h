@@ -56,7 +56,8 @@ public:
 private:
     const ull base = 4294967296;
     const ui max_ui = 4294967295;
-    const ui min_ui = -4294967296;
+    const int min_int = -2147483648;
+    const int max_int = 2147483647;
     vector <ui> digits;
 
     ui operator[] (size_t ind) const;

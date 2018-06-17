@@ -26,7 +26,11 @@ big_integer::~big_integer() {
 
 big_integer::big_integer(int arg) {
     digits.clear();
-    digits.push_back(abs(arg));
+    if (arg != min_int) {
+        digits.push_back(abs(arg));
+    } else {
+        digits.push_back(ui(max_int) + 1);
+    }
     if (arg >= 0) {
         signum = 0;
     }
@@ -129,7 +133,6 @@ string big_integer::get_decimal_string() const {
 
 big_integer& big_integer::operator= (const big_integer& arg) {
     signum = arg.signum;
-    digits.clear();
     digits = arg.digits;
     return *this;
 }
