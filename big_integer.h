@@ -63,7 +63,6 @@ private:
     ui operator[] (size_t ind) const;
     ui& operator[] (size_t ind);
 
-    void add_digit();
     void delete_space();
 
     bool is_zero() const;

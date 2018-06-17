@@ -454,10 +454,6 @@ ui& big_integer::operator[] (size_t ind) {
     return digits[ind];
 }
 
-void big_integer::add_digit() {
-    digits.push_back(0);
-}
-
 void big_integer::delete_space() {
     while (digits.size() > 1 && digits[digits.size() - 1] == 0) {
         digits.pop_back();
@@ -482,7 +478,7 @@ big_integer big_integer::sub_big_integer(size_t from, size_t to) {
     big_integer res = 0;
     res[0] = digits[from];
     for (size_t i = from + 1; i < to + 1; i++) {
-        res.add_digit();
+        res.digits.push_back(0);
         res[i - from] = digits[i];
     }
     return res;
@@ -501,14 +497,14 @@ ui big_integer::small_unsigned_mod(const big_integer& a, ui b) {
 
 void big_integer::small_unsigned_sum(big_integer& a, ui b, size_t pos) {
     if (pos == a.digits.size()) {
-        a.add_digit();
+        a.digits.push_back(0);
     }
     ull cur = ull(a[pos]) + ull(b);
     for (size_t i = pos; i < a.digits.size(); i++) {
         if (cur >= base) {
             a[i] = cur << 32 >> 32;
             if (i + 1 == a.digits.size()) {
-                a.add_digit();
+                a.digits.push_back(0);
                 cur = cur >> 32;
             }
             else {
@@ -547,7 +543,7 @@ void big_integer::small_unsigned_div(big_integer& a, ui b) {
     big_integer res(0);
     res.signum = a.signum;
     for (size_t i = 1; i < a.digits.size(); i++) {
-        res.add_digit();
+        res.digits.push_back(0);
     }
     ull cur = a[a.digits.size() - 1];
     for (size_t i = a.digits.size() - 2; ; i--) {
@@ -634,7 +630,7 @@ std::pair<big_integer, big_integer> big_integer::big_unsigned_div(const big_inte
     }
     ui m = A.digits.size() - B.digits.size();
     for (size_t i = 0; i < m; i++) {
-        res.add_digit();
+        res.digits.push_back(0);
     }
     for (size_t i = m; ; i--) {
         size_t j = n + i;
