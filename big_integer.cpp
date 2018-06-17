@@ -634,26 +634,32 @@ std::pair<big_integer, big_integer> big_integer::big_unsigned_div(const big_inte
     }
     for (size_t i = m; ; i--) {
         size_t j = n + i;
-        ull q = 1;
+        ull q = 0;
         if (i == m) {
             j = n + m - 1;
-            q = ull(A[j]) / ull(B[n - 1]);
+            if (A.digits.size() > j) {
+                q = ull(A[j]) / ull(B[n - 1]);
+            }
         }
         else {
-            q = (ull(A[j]) * base + ull(A[j - 1])) / ull(B[n - 1]);
+            if (A.digits.size() > j) {
+                q = (ull(A[j]) * base + ull(A[j - 1])) / ull(B[n - 1]);
+            }
         }
-        if (q > max_ui) {
-            q = max_ui;
+        if (A.digits.size() > j) {
+            if (q > max_ui) {
+                q = max_ui;
+            }
+            big_integer sub_int = A.sub_big_integer(i, j);
+            big_integer mult = B;
+            small_unsigned_multiply(mult, ui(q));
+            while (mult.big_unsigned_cmp(sub_int) == 1) {
+                mult -= B;
+                q--;
+            }
+            small_unsigned_sum(res, q, i);
+            A.big_unsigned_sub(mult, i);
         }
-        big_integer sub_int = A.sub_big_integer(i, j);
-        big_integer mult = B;
-        small_unsigned_multiply(mult, ui(q));
-        while (mult.big_unsigned_cmp(sub_int) == 1) {
-            mult -= B;
-            q--;
-        }
-        small_unsigned_sum(res, q, i);
-        A.big_unsigned_sub(mult, i);
         j--;
         if (i == 0) {
             break;
