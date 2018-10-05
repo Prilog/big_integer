@@ -575,21 +575,69 @@ void big_integer::small_unsigned_sub(big_integer& a, ui b, size_t pos) {
 }
 
 void big_integer::big_unsigned_add(const big_integer& a) {
-    for (size_t i = 0; i < a.digits.size(); i++) {
-        small_unsigned_sum(*this, a[i], i);
-    }
+    ull buf = 0;
+	for (size_t i = 0; i < a.digits.size(); i++) {
+		//small_unsigned_sum(*this, a[i], i);
+		if ((*this).digits.size() == i) {
+			(*this).digits.push_back(0);
+		}
+		ull sum = ull((*this)[i]) + ull(a[i]) + buf;
+		if (sum > ull(max_ui)) {
+			buf = 1;
+		}
+		else {
+			buf = 0;
+		}
+		(*this)[i] = ui(sum % base);
+	}
+	if (buf == 1) {
+		if ((*this).digits.size() == a.digits.size()) {
+			(*this).digits.push_back(1);
+		}
+		else {
+			small_unsigned_sum(*this, 1, a.digits.size());
+		}
+	}
 }
 
 void big_integer::big_unsigned_sub(const big_integer& a) {
-    for (size_t i = 0; i < a.digits.size(); i++) {
-        small_unsigned_sub(*this, a[i], i);
-    }
+   ull buf = 0;
+	for (size_t i = 0; i < a.digits.size(); i++) {
+		//small_unsigned_sub(*this, a[i], i);
+		ull red = ull((*this)[i]);
+		ull sub = ull(a[i]) + buf;
+		if (sub > red) {
+			buf = 1;
+			red += base;
+		}
+		else {
+			buf = 0;
+		}
+		(*this)[i] = red - sub;
+	}
+	if (buf == 1) {
+		small_unsigned_sub(*this, 1, a.digits.size());
+	}
 }
 
 void big_integer::big_unsigned_sub(const big_integer& a, size_t from) {
-    for (size_t i = 0; i < a.digits.size(); i++) {
-        small_unsigned_sub(*this, a[i], i + from);
-    }
+    ull buf = 0;
+	for (size_t i = 0; i < a.digits.size(); i++) {
+		//small_unsigned_sub(*this, a[i], i);
+		ull red = ull((*this)[i + from]);
+		ull sub = ull(a[i]) + buf;
+		if (sub > red) {
+			buf = 1;
+			red += base;
+		}
+		else {
+			buf = 0;
+		}
+		(*this)[i + from] = red - sub;
+	}
+	if (buf == 1) {
+		small_unsigned_sub(*this, 1, a.digits.size() + from);
+	}
 }
 
 void big_integer::big_unsigned_mul(const big_integer& a) {
