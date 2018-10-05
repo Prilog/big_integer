@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <vector>
 #include <string>
+#include "neko_vector.h"
 
 using std::vector;
 using std::string;
@@ -58,7 +59,7 @@ private:
     const ui max_ui = 4294967295;
     const int min_int = -2147483648;
     const int max_int = 2147483647;
-    vector <ui> digits;
+    neko_vector digits;
 
     ui operator[] (size_t ind) const;
     ui& operator[] (size_t ind);
