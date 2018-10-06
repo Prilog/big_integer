@@ -576,28 +576,8 @@ void big_integer::small_unsigned_sub(big_integer& a, ui b, size_t pos) {
 }
 
 void big_integer::big_unsigned_add(const big_integer& a) {
-	ull buf = 0;
 	for (size_t i = 0; i < a.digits.size(); i++) {
-		//small_unsigned_sum(*this, a[i], i);
-		if ((*this).digits.size() == i) {
-			(*this).digits.push_back(0);
-		}
-		ull sum = ull((*this)[i]) + ull(a[i]) + buf;
-		if (sum > ull(max_ui)) {
-			buf = 1;
-		}
-		else {
-			buf = 0;
-		}
-		(*this)[i] = ui(sum % base);
-	}
-	if (buf == 1) {
-		if ((*this).digits.size() == a.digits.size()) {
-			(*this).digits.push_back(1);
-		}
-		else {
-			small_unsigned_sum(*this, 1, a.digits.size());
-		}
+		small_unsigned_sum(*this, a[i], i);
 	}
 }
 
@@ -619,6 +599,7 @@ void big_integer::big_unsigned_sub(const big_integer& a) {
 	if (buf == 1) {
 		small_unsigned_sub(*this, 1, a.digits.size());
 	}
+	delete_space();
 }
 
 void big_integer::big_unsigned_sub(const big_integer& a, size_t from) {
@@ -639,6 +620,7 @@ void big_integer::big_unsigned_sub(const big_integer& a, size_t from) {
 	if (buf == 1) {
 		small_unsigned_sub(*this, 1, a.digits.size() + from);
 	}
+	delete_space();
 }
 
 void big_integer::big_unsigned_mul(const big_integer& a) {
