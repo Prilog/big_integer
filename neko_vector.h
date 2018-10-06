@@ -16,7 +16,6 @@ private:
 	size_t sz;
 	ui buf;
 	std::shared_ptr <std::vector <ui> > arr;
-	bool own;
 
 	void copy_vector();
 	void create_vector();
