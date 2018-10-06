@@ -7,7 +7,6 @@ typedef unsigned long long ull;
 neko_vector::neko_vector() {
 	buf = 0;
 	sz = 0;
-	own = true;
 	arr.reset();
 }
 
@@ -18,10 +17,9 @@ neko_vector::~neko_vector() {
 }
 
 void neko_vector::copy_vector() {
-	if (own) {
+	if (arr.use_count() == 1) {
 		return;
 	}
-	own = true;
 	std::vector <ui> x = *arr;
 	arr = std::make_shared <std::vector <ui> >(x);
 }
@@ -40,11 +38,9 @@ neko_vector::neko_vector(neko_vector const &arg) {
 	sz = arg.sz;
 	if (arg.sz > 1) {
 		buf = 0;
-		own = false;
 		arr = arg.arr;
 	}
 	else {
-		own = true;
 		buf = arg.buf;;
 		delete_vector();
 	}
@@ -71,7 +67,6 @@ void neko_vector::pop_back() {
 	}
 	else if (sz == 2) {
 		buf = (*arr)[0];
-		own = true;
 		delete_vector();
 	}
 	else {
@@ -109,7 +104,6 @@ neko_vector& neko_vector::operator=(neko_vector const &arg) {
 		buf = arg.buf;
 	}
 	else {
-		copy_vector();
 		sz = arg.sz;
 		buf = 0;
 		arr = arg.arr;
@@ -120,6 +114,5 @@ neko_vector& neko_vector::operator=(neko_vector const &arg) {
 void neko_vector::clear() {
 	sz = 0;
 	buf = 0;
-	own = true;
 	delete_vector();
 }
